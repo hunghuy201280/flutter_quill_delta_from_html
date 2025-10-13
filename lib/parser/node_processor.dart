@@ -21,15 +21,14 @@ import 'package:html/dom.dart' as dom;
 /// processNode(htmlNode, {}, delta);
 /// print(delta.toJson()); // Output: [{"insert": "Hello, "}, {"insert": "World", "attributes": {"italic": true, "bold": true}}, {"insert": "!"}]
 /// ```
-void processNode(
-  dom.Node node,
-  Map<String, dynamic> attributes,
-  Delta delta, {
-  bool addSpanAttrs = false,
-  List<CustomHtmlPart>? customBlocks,
-  List<String>? removeTheseAttributesFromSpan,
-  CSSVarible? onDetectLineheightCssVariable,
-}) {
+void processNode(dom.Node node,
+    Map<String, dynamic> attributes,
+    Delta delta, {
+      bool addSpanAttrs = false,
+      List<CustomHtmlPart>? customBlocks,
+      List<String>? removeTheseAttributesFromSpan,
+      CSSVarible? onDetectLineheightCssVariable,
+    }) {
   if (node is dom.Text) {
     delta.insert(node.text, attributes.isEmpty ? null : attributes);
   } else if (node is dom.Element) {
@@ -42,20 +41,24 @@ void processNode(
     if (node.isStrike) newAttributes['strike'] = true;
     if (node.isSubscript) newAttributes['script'] = 'sub';
     if (node.isSuperscript) newAttributes['script'] = 'super';
+    bool handledByCustomBlock = false;
 
     // Use custom block definitions if provided
     if (customBlocks != null && customBlocks.isNotEmpty) {
       for (var customBlock in customBlocks) {
         if (customBlock.matches(node)) {
           final operations =
-              customBlock.convert(node, currentAttributes: newAttributes);
+          customBlock.convert(node, currentAttributes: newAttributes);
           operations.forEach((Operation op) {
             delta.insert(op.data, op.attributes);
           });
+          handledByCustomBlock = true;
           continue;
         }
       }
-    } else {
+    }
+
+    if (!handledByCustomBlock) {
       // Handle <span> tags
       if (node.isSpan) {
         final spanAttributes = parseStyleAttribute(
@@ -77,6 +80,7 @@ void processNode(
         }
       }
 
+
       // Handle <img> tags
       if (node.isImg) {
         final String src = node.attributes['src'] ?? '';
@@ -89,11 +93,11 @@ void processNode(
             styles.isEmpty
                 ? null
                 : {
-                    'style': attributes.entries
-                        .map((entry) => '${entry.key}:${entry.value}')
-                        .toList()
-                        .join(';'),
-                  },
+              'style': attributes.entries
+                  .map((entry) => '${entry.key}:${entry.value}')
+                  .toList()
+                  .join(';'),
+            },
           );
         }
       }
