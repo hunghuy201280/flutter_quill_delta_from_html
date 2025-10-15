@@ -75,6 +75,16 @@ class DefaultHtmlToOperations extends HtmlOperations {
     if (blockAttributes.isNotEmpty) {
       blockAttributes.removeWhere((key, value) => value == null);
       delta.insert('\n', blockAttributes);
+    } else {
+      if(element.parent?.isList==false){
+
+        delta.insert('\n');
+      }
+      // final hasCodeBlock = nodes.isNotEmpty &&
+      //     nodes.any((node)=>node is dom.Element &&
+      //         (node).isCodeBlock);
+      // if (hasCodeBlock) {
+      // }
     }
 
     return delta.toList();

@@ -1,5 +1,6 @@
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
+import 'package:flutter_quill_delta_from_html/parser/default_html_to_ops.dart';
 import 'package:html/dom.dart' as dom;
 
 /// Processes a DOM [node], converting it into Quill Delta operations.
@@ -59,6 +60,15 @@ void processNode(dom.Node node,
     }
 
     if (!handledByCustomBlock) {
+      final htmlOperations =DefaultHtmlToOperations(onDetectLineheightCssVariable);
+      if(node.isCodeBlock){
+
+        final operations=htmlOperations.codeblockToOp(node);
+        operations.forEach((Operation op) {
+          delta.insert(op.data, op.attributes);
+        });
+        return;
+      }
       // Handle <span> tags
       if (node.isSpan) {
         final spanAttributes = parseStyleAttribute(
