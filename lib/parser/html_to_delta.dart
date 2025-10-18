@@ -170,7 +170,8 @@ class HtmlToDelta {
     //ensure insert a new line at the final to avoid any conflict with assertions
     if (delta.isNotEmpty) {
       final Operation lastOpdata = delta.last;
-      final bool lastDataIsNotNewLine = lastOpdata.data.toString() != '\n';
+      final bool lastDataIsNotNewLine = lastOpdata.data.toString() != '\n' &&
+          !lastOpdata.data.toString().endsWith('\n');
       final bool hasAttributes = lastOpdata.attributes != null;
       if (lastDataIsNotNewLine && hasAttributes ||
           lastDataIsNotNewLine ||
