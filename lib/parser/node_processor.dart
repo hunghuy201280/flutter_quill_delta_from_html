@@ -42,6 +42,14 @@ void processNode(dom.Node node,
     if (node.isStrike) newAttributes['strike'] = true;
     if (node.isSubscript) newAttributes['script'] = 'sub';
     if (node.isSuperscript) newAttributes['script'] = 'super';
+    // <mark> carries its highlight as a `background-color` style (the other
+    // inline tags above are keyword-only); parse it into a Quill `background`
+    // attribute so the highlight renders instead of being silently dropped.
+    if (node.isMark) {
+      newAttributes.addAll(
+        parseStyleAttribute(node.localName!, node.getSafeAttribute('style')),
+      );
+    }
     bool handledByCustomBlock = false;
 
     // Use custom block definitions if provided
